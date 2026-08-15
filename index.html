@@ -1,0 +1,1625 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#1a0b2e" />
+<title>Yehia &amp; Hamada</title>
+
+<!-- Google Fonts: a romantic script for headings + a clean rounded sans for body -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<!-- Tailwind CSS (CDN) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          script: ['"Dancing Script"', 'cursive'],
+          sans: ['"Quicksand"', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+
+<style>
+  /* ==========================================================
+     DESIGN TOKENS — dark romantic + glassmorphism palette
+     ========================================================== */
+  :root {
+    --bg-deep: #0d0417;
+    --bg-plum: #1a0b2e;
+    --bg-plum-2: #2a1246;
+    --rose: #ff6b9d;
+    --rose-soft: #ff8fab;
+    --gold: #ffd479;
+    --text-soft: #fdf2f8;
+    --text-muted: #cbb8d9;
+    --glass-bg: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.14);
+  }
+
+  * { -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--bg-deep);
+    color: var(--text-soft);
+    font-family: 'Quicksand', sans-serif;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+
+  /* Themed scrollbar */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--rose-soft) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--rose-soft);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--rose);
+  }
+
+  ::-webkit-scrollbar-button {
+    display: none;
+    height: 0;
+    width: 0;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255, 107, 157, 0.18), transparent 45%),
+      radial-gradient(circle at 85% 25%, rgba(255, 212, 121, 0.12), transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(140, 60, 200, 0.25), transparent 50%),
+      linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-plum) 45%, var(--bg-plum-2) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  .font-script { font-family: 'Dancing Script', cursive; }
+
+  /* Glass surface helper */
+  .glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .text-muted { color: var(--text-muted); }
+  .text-rose { color: var(--rose-soft); }
+  .text-gold { color: var(--gold); }
+
+  /* ==========================================================
+     BACKGROUND FLOATING HEARTS (continuous, subtle, whole site)
+     ========================================================== */
+  #heart-field {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .bg-heart {
+    position: absolute;
+    bottom: -10vh;
+    opacity: 0;
+    filter: drop-shadow(0 0 6px rgba(255, 107, 157, 0.5));
+    animation-name: floatUp;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+    will-change: transform, opacity;
+  }
+
+  @keyframes floatUp {
+    0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.55; }
+    50%  { transform: translateY(-55vh) translateX(var(--drift, 20px)) rotate(15deg); }
+    90%  { opacity: 0.35; }
+    100% { transform: translateY(-115vh) translateX(calc(var(--drift, 20px) * -1)) rotate(-10deg); opacity: 0; }
+  }
+
+  /* ==========================================================
+     LOCK SCREEN
+     ========================================================== */
+  #lock-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(13, 4, 23, 0.55);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 1s ease, visibility 1s ease;
+  }
+
+  #lock-screen.ready {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  #lock-screen.unlocked {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .lock-card {
+    width: 100%;
+    max-width: 22rem;
+    border-radius: 1.75rem;
+    padding: 2rem 1.5rem 1.75rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  }
+
+  .lock-card.shake {
+    animation: shake 0.5s ease;
+  }
+
+  @keyframes shake {
+    10%, 90% { transform: translateX(-2px); }
+    20%, 80% { transform: translateX(4px); }
+    30%, 50%, 70% { transform: translateX(-8px); }
+    40%, 60% { transform: translateX(8px); }
+  }
+
+  /* PIN dots */
+  .pin-dot {
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 9999px;
+    border: 1.5px solid var(--glass-border);
+    background: transparent;
+    transition: all 0.25s ease;
+  }
+
+  .pin-dot.filled {
+    background: linear-gradient(135deg, var(--rose), var(--gold));
+    border-color: transparent;
+    box-shadow: 0 0 12px 2px rgba(255, 107, 157, 0.7);
+    transform: scale(1.15);
+  }
+
+  /* Numpad */
+  .num-btn {
+    aspect-ratio: 1 / 1;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    user-select: none;
+  }
+
+  .num-btn:active,
+  .num-btn.tapped {
+    transform: scale(0.9);
+    background: rgba(255, 107, 157, 0.25);
+    box-shadow: 0 0 22px 4px rgba(255, 107, 157, 0.55);
+  }
+
+  .hint-msg {
+    opacity: 0;
+    max-height: 0;
+    transition: opacity 0.4s ease, max-height 0.4s ease;
+  }
+
+  .hint-msg.show {
+    opacity: 1;
+    max-height: 2.5rem;
+  }
+
+  /* ==========================================================
+     FLOATING MUSIC PLAYER
+     ========================================================== */
+  #music-btn {
+    position: fixed;
+    right: 1.1rem;
+    bottom: 1.1rem;
+    z-index: 40;
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s ease;
+  }
+
+  #music-btn:active { transform: scale(0.92); }
+
+  #music-toast {
+    position: fixed;
+    right: 1.1rem;
+    bottom: 4.9rem;
+    z-index: 41;
+    max-width: 15rem;
+    padding: 0.55rem 0.9rem;
+    border-radius: 0.8rem;
+    font-size: 0.75rem;
+    color: var(--text-soft);
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  #music-toast.show { opacity: 1; transform: translateY(0); }
+
+  .eq-bar {
+    width: 3px;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--rose-soft);
+    animation: eq 0.9s ease-in-out infinite;
+    animation-play-state: paused;
+  }
+
+  #music-btn.playing .eq-bar { animation-play-state: running; }
+  .eq-bar:nth-child(1) { animation-delay: 0s; }
+  .eq-bar:nth-child(2) { animation-delay: 0.15s; }
+  .eq-bar:nth-child(3) { animation-delay: 0.3s; }
+  .eq-bar:nth-child(4) { animation-delay: 0.45s; }
+
+  @keyframes eq {
+    0%, 100% { height: 5px; }
+    50% { height: 18px; }
+  }
+
+  /* ==========================================================
+     HERO / COUNTER
+     ========================================================== */
+  .counter-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.6rem 0.4rem;
+    border-radius: 1rem;
+    min-width: 3.6rem;
+  }
+
+  .counter-num {
+    font-size: clamp(1.3rem, 5vw, 1.9rem);
+    font-weight: 700;
+    color: var(--text-soft);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
+
+  .counter-num.tick {
+    animation: tickPop 0.4s ease;
+  }
+
+  @keyframes tickPop {
+    0% { transform: translateY(-6px); opacity: 0.3; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  .counter-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+  }
+
+  /* Gentle pulse on the hero heart icon */
+  .pulse-heart { animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  /* ==========================================================
+     SCROLL REVEAL
+     ========================================================== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ==========================================================
+     POLAROID GALLERY
+     ========================================================== */
+  .polaroid {
+    background: #fdf6f0;
+    color: #3a2a2a;
+    padding: 0.75rem 0.75rem 1.1rem;
+    border-radius: 0.4rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    transform: rotate(var(--tilt, -3deg));
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+    cursor: pointer;
+  }
+
+  .polaroid:hover,
+  .polaroid:active,
+  .polaroid.tapped {
+    transform: rotate(0deg) scale(1.05) translateY(-4px);
+    box-shadow: 0 18px 40px rgba(255, 107, 157, 0.35);
+  }
+
+  /* Featured hero polaroid — larger, centered, sits above the grid */
+  .polaroid-featured {
+    width: 100%;
+    max-width: 22rem;
+    margin: 0 auto 2.5rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  }
+
+  .polaroid-featured .polaroid-caption {
+    font-size: 1.4rem;
+  }
+
+  .polaroid-featured:hover,
+  .polaroid-featured:active,
+  .polaroid-featured.tapped {
+    transform: rotate(0deg) scale(1.03) translateY(-4px);
+  }
+
+  .polaroid-photo {
+    aspect-ratio: 4 / 5;
+    border-radius: 0.2rem;
+    background: linear-gradient(135deg, #ffb6c1, #ff8fab 40%, #c99bf0);
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .placeholder-icon {
+    font-size: 2.2rem;
+    opacity: 0.85;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+
+  .polaroid-caption {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.15rem;
+    margin-top: 0.6rem;
+    text-align: center;
+  }
+
+  .polaroid-date {
+    display: block;
+    text-align: center;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    color: #a97ea0;
+    margin-top: 0.1rem;
+  }
+
+  /* Lightbox */
+  #lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    background: rgba(10, 3, 20, 0.85);
+    backdrop-filter: blur(6px);
+  }
+  #lightbox.open { display: flex; }
+
+  /* ==========================================================
+     ENVELOPE / OPEN-WHEN CARDS
+     ========================================================== */
+  .envelope {
+    perspective: 1200px;
+    cursor: pointer;
+  }
+
+  .envelope-inner {
+    position: relative;
+    min-height: 9rem;
+    border-radius: 1rem;
+    transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+
+  .envelope.open .envelope-inner {
+    transform: rotateY(180deg);
+  }
+
+  .envelope-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 1rem;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1.25rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .envelope-back {
+    transform: rotateY(180deg);
+    align-items: flex-start;
+    text-align: left;
+    overflow-y: auto;
+  }
+
+  /* ==========================================================
+     HEART BURST (confetti-free, pure CSS/JS heart burst)
+     ========================================================== */
+  #burst-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .burst-heart {
+    position: absolute;
+    opacity: 1;
+    transition: transform 1.1s cubic-bezier(0.2, 0.8, 0.3, 1), opacity 1.1s ease;
+  }
+
+  /* Final surprise popup */
+  #surprise-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(10, 3, 20, 0.75);
+    backdrop-filter: blur(6px);
+  }
+  #surprise-popup.open { display: flex; }
+
+  /* Small helper for buttons */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--rose), var(--gold));
+    color: #2a1246;
+    font-weight: 700;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 10px 30px rgba(255, 107, 157, 0.35);
+  }
+  .btn-primary:active { transform: scale(0.96); }
+
+  /* ==========================================================
+     SPECIAL SYMBOLIC PHRASE — big, glowing, unmissable
+     ========================================================== */
+  .glow-text {
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { text-shadow: 0 0 12px rgba(255, 212, 121, 0.35), 0 0 28px rgba(255, 107, 157, 0.25); }
+    50% { text-shadow: 0 0 22px rgba(255, 212, 121, 0.65), 0 0 46px rgba(255, 107, 157, 0.5); }
+  }
+
+  /* ==========================================================
+     SPLASH / STARTER SCREEN — the very first tap, so the browser
+     allows sound to start playing right after
+     ========================================================== */
+  #splash-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(13, 4, 23, 0.75);
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+  #splash-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  #splash-btn {
+    animation: glowPulse 2.4s ease-in-out infinite;
+  }
+
+  /* ==========================================================
+     LYRICS POPUP — shown right after the splash tap, for ~54s
+     (matches the lock song's 0:17→1:11 window), then the secret
+     code screen takes over. The × skips it early.
+     ========================================================== */
+  #lyrics-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 95;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(13, 4, 23, 0.92);
+  }
+  #lyrics-popup.open { display: flex; }
+
+  .lyrics-card {
+    position: relative;
+    width: 100%;
+    max-width: 26rem;
+    min-height: 12rem;
+    border-radius: 1.5rem;
+    padding: 2.5rem 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  #lyrics-close {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.9rem;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--text-muted);
+  }
+
+  #lyrics-lines {
+    position: relative;
+    width: 100%;
+    min-height: 4.5rem;
+  }
+
+  .lyrics-line {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.6rem;
+    line-height: 1.4;
+    color: var(--text-soft);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .lyrics-line.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+
+<body class="font-sans">
+
+  <!-- =========================================================
+       GLOBAL FLOATING HEART BACKGROUND (runs the whole time)
+       ========================================================= -->
+  <div id="heart-field"></div>
+
+  <!-- =========================================================
+       0) SPLASH / STARTER SCREEN
+       Sits on top of everything at first. Tapping the button here
+       is the very first touch on the page, so the browser allows
+       the lock-screen song to start playing right after.
+       ========================================================= -->
+  <!-- REPLACE: edit the greeting/button text if you want -->
+  <div id="splash-screen">
+    <div class="text-5xl mb-3 pulse-heart">💕</div>
+    <h1 class="font-script text-4xl sm:text-5xl text-rose mb-2">Hello cutie</h1>
+    <p class="text-muted mb-9">wanna see what's this?</p>
+    <button id="splash-btn" class="btn-primary rounded-full px-9 py-4 text-base">
+      Click here, my love
+    </button>
+  </div>
+
+  <!-- =========================================================
+       0.5) LYRICS POPUP
+       Shown right after the splash tap, for 55s. Tap × to skip
+       straight to the passcode screen. Lines/timing are driven by
+       the lyricsData array in the script below (search LYRICS_DATA).
+       ========================================================= -->
+  <div id="lyrics-popup">
+    <div class="lyrics-card glass">
+      <button id="lyrics-close" aria-label="Close">&times;</button>
+      <div id="lyrics-lines"></div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       1) LOCK SCREEN
+       ========================================================= -->
+  <div id="lock-screen">
+    <div class="lock-card glass" id="lock-card">
+      <div class="text-center mb-5">
+        <div class="text-4xl mb-2 pulse-heart">💗</div>
+        <h1 class="font-script text-3xl text-rose">Enter the secret code first, bby boi</h1>
+        <p class="text-muted text-sm mt-1">only we know this one 🤍</p>
+      </div>
+
+      <!-- PIN dots -->
+      <div id="pin-dots" class="flex items-center justify-center gap-3 mb-6"></div>
+
+      <!-- Numpad -->
+      <div id="numpad" class="grid grid-cols-3 gap-3 max-w-[16rem] mx-auto"></div>
+
+      <p id="hint-msg" class="hint-msg text-center text-rose text-sm mt-4">
+        Try again, love 💔
+      </p>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       2) FLOATING MUSIC PLAYER
+       ========================================================= -->
+  <button id="music-btn" class="glass" aria-label="Play music">
+    <span class="eq-bar"></span>
+    <span class="eq-bar"></span>
+    <span class="eq-bar"></span>
+    <span class="eq-bar"></span>
+  </button>
+  <div id="music-toast" class="glass"></div>
+
+  <!-- Both songs play via YouTube, hidden — see CONFIG below for video IDs / start times -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <div style="position:fixed; bottom:0; right:0; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none;">
+    <div id="lock-yt-player"></div>
+    <div id="main-yt-player"></div>
+  </div>
+
+  <!-- =========================================================
+       MAIN APP (hidden until passcode is correct)
+       ========================================================= -->
+  <main id="app" class="relative z-10 opacity-0">
+
+    <!-- ============== 3) HERO + LIVE COUNTER ============== -->
+    <section class="min-h-screen flex flex-col items-center justify-center text-center px-6 py-16">
+      <div class="text-5xl mb-3 pulse-heart">💞</div>
+      <!-- REPLACE: greeting below -->
+      <h1 class="font-script text-5xl sm:text-6xl text-rose mb-2 leading-tight">Hello my Hamada<br />my cutie boi</h1>
+      <p class="text-muted text-sm sm:text-base mb-10 reveal">
+        every second with you is a second worth counting
+      </p>
+
+      <div id="counter" class="glass rounded-2xl px-4 py-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3 reveal">
+        <div class="counter-box"><span class="counter-num" data-unit="years">0</span><span class="counter-label">Years</span></div>
+        <div class="counter-box"><span class="counter-num" data-unit="months">0</span><span class="counter-label">Months</span></div>
+        <div class="counter-box"><span class="counter-num" data-unit="days">0</span><span class="counter-label">Days</span></div>
+        <div class="counter-box"><span class="counter-num" data-unit="hours">0</span><span class="counter-label">Hours</span></div>
+        <div class="counter-box"><span class="counter-num" data-unit="minutes">0</span><span class="counter-label">Min</span></div>
+        <div class="counter-box"><span class="counter-num" data-unit="seconds">0</span><span class="counter-label">Sec</span></div>
+      </div>
+
+      <p class="text-muted text-xs mt-6 reveal">scroll down, my love ↓</p>
+    </section>
+
+    <!-- ============== 3.5) THE PHRASE — this is the important one ============== -->
+    <!-- REPLACE: keep or edit this line, it's meant to stand out -->
+    <section class="px-6 py-10 sm:py-14 text-center">
+      <div class="text-2xl mb-3 reveal">✨</div>
+      <p class="font-script glow-text text-gold text-4xl sm:text-6xl leading-snug reveal">
+        "I would love to love you forever"
+      </p>
+    </section>
+
+    <!-- ============== 4) MEMORY GALLERY ============== -->
+    <section id="gallery" class="px-5 py-16 max-w-5xl mx-auto">
+      <h2 class="font-script text-4xl text-center text-rose mb-2 reveal">Our Memories</h2>
+      <p class="text-muted text-center text-sm mb-10 reveal">tap a photo to relive the moment</p>
+
+      <!-- Featured photo — pulled out of the grid, shown larger and centered -->
+      <div class="polaroid polaroid-featured reveal" style="--tilt:-1deg" data-note="This picture... you were in love with it, right? So please, always hug me this tightly, and even closer.">
+        <div class="polaroid-photo" style="background-image:url('photos/polaroid-09.jpeg')"></div>
+        <p class="polaroid-caption" dir="auto">My sweet Hamada.. You are the absolute best thing that has ever happened to me.</p>
+      </div>
+
+      <!--
+        REPLACE PHOTOS: for each .polaroid below, delete the <span class="placeholder-icon">
+        and add style="background-image:url('YOUR_IMAGE_URL.jpg')" to the .polaroid-photo div.
+        Edit the caption and data-note (shown in the lightbox) freely.
+      -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-5 sm:gap-6">
+
+        <div class="polaroid reveal" style="--tilt:-4deg" data-note="Just an ordinary night that felt extraordinary because it was with you.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-13.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">Simple days, big feelings</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:4deg" data-note="Our first trip together. Still the best decision we made that weekend.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-04.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">If you had any idea how much I love you, you would come and marry me right now.</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:4deg" data-note="More us, always. That's the plan.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-16.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">More us, always</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:-4deg" data-note="This one doesn't need a date. It's just how I feel, always.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-07.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">My heart aches from so much love... I love you so much it might explode.</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:3deg" data-note="Especially when I kiss those lips, hehe 😋">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-02.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">Seriously, your laugh and your smile are among the sweetest I've ever known.</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:-3deg" data-note="You and me. That's the whole story.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-11.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">You + Me</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:-3deg" data-note="My love for you grows more and more in my heart with every passing day. I feel so lucky to have you, and I know you're the most precious thing I have.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-05.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">You're the best thing that ever happened to me, and truly the one who keeps me strong.</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:3deg" data-note="Wherever you are, that's home to me.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-14.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">This is home</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:-4deg" data-note="This is the face I fell for, over and over again.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-01.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">My favorite face</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:3deg" data-note="Just the two of us, being us.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-08.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">Just the two of us</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:-2deg" data-note="Still gives me butterflies. Never gets old.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-15.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">Never gets old</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:-2deg" data-note="The day everything started making sense. I need to build a life with you, and live, grow, and get old with you.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-03.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">You are my favorite ❤️</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:4deg" data-note="This one lives in my head rent free, I look at it constantly.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-10.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">Lives in my head rent free</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:2deg" data-note="Here's to a thousand more moments exactly like this one.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-06.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">I've never loved anyone the way I love you... I feel like I'm dreaming.</p>
+        </div>
+
+        <div class="polaroid reveal" style="--tilt:2deg" data-note="Caught you smiling again. I'll never get tired of that.">
+          <div class="polaroid-photo" style="background-image:url('photos/polaroid-12.jpeg')"></div>
+          <p class="polaroid-caption" dir="auto">Caught you smiling again</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============== 5) OPEN WHEN / LOVE LETTERS ============== -->
+    <section id="envelopes" class="px-5 py-16 max-w-4xl mx-auto">
+      <h2 class="font-script text-4xl text-center text-rose mb-2 reveal">Open When...</h2>
+      <p class="text-muted text-center text-sm mb-10 reveal">tap an envelope to open it</p>
+
+      <!-- REPLACE: edit the title on the front and the message on the back of each envelope -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+        <div class="envelope reveal">
+          <div class="envelope-inner">
+            <div class="envelope-face">
+              <p class="font-script text-2xl text-rose">Open when you miss me 💌</p>
+            </div>
+            <div class="envelope-face envelope-back">
+              <p class="font-script text-lg leading-relaxed">
+                Close your eyes for a second. I'm right there with you, always — just a heartbeat away. 💗
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="envelope reveal">
+          <div class="envelope-inner">
+            <div class="envelope-face">
+              <p class="font-script text-2xl text-rose">Open when you need a laugh 😄</p>
+            </div>
+            <div class="envelope-face envelope-back">
+              <p class="font-script text-lg leading-relaxed">
+                Remember that time we couldn't stop laughing over nothing? Do that again. Right now. I dare you.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="envelope reveal">
+          <div class="envelope-inner">
+            <div class="envelope-face">
+              <p class="font-script text-2xl text-rose">Open when you're sad 🤍</p>
+            </div>
+            <div class="envelope-face envelope-back">
+              <p class="font-script text-lg leading-relaxed">
+                Whatever it is, it doesn't get to stay forever. I'm here, and I'm not going anywhere.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="envelope reveal">
+          <div class="envelope-inner">
+            <div class="envelope-face">
+              <p class="font-script text-2xl text-rose">Open on our anniversary 🎉</p>
+            </div>
+            <div class="envelope-face envelope-back">
+              <p class="font-script text-lg leading-relaxed">
+                One more year, one more chapter, one more reason to celebrate us. Happy anniversary, my love.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="envelope reveal">
+          <div class="envelope-inner">
+            <div class="envelope-face">
+              <p class="font-script text-2xl text-rose">Open when you need to feel safe 🤍</p>
+            </div>
+            <div class="envelope-face envelope-back">
+              <p class="font-script text-lg leading-relaxed" dir="auto">
+                looking at u makes me realize how incredibly lucky I am to have u in my life... u are my safe space
+                and the person I can completely be myself around without pretending or hiding anything. u bring so
+                much light and warmth into my world even on my darkest days... I am choosing u today tomorrow and
+                every single day.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="envelope reveal">
+          <div class="envelope-inner">
+            <div class="envelope-face">
+              <p class="font-script text-2xl text-rose">Open when you doubt how much I mean it 💗</p>
+            </div>
+            <div class="envelope-face envelope-back">
+              <p class="font-script text-lg leading-relaxed">
+                You know, Hamada? What I feel for you these days can't be described. I feel like I can finally say I
+                truly love you — real love. Right now, you're the person who's taken over my mind and my thoughts;
+                you're the first person I think of when I wake up and the last one I think of before I sleep. Being
+                with you feels beautiful.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="envelope reveal">
+          <div class="envelope-inner">
+            <div class="envelope-face">
+              <p class="font-script text-2xl text-rose">Open when you want to know how much you've grown on me 🌱</p>
+            </div>
+            <div class="envelope-face envelope-back">
+              <p class="font-script text-lg leading-relaxed">
+                My love for you just keeps growing more and more in my heart. I feel how lucky I am to have you, and
+                how you're the most precious thing I own. I never get bored talking to you, and I adore every moment
+                I spend talking to you.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="envelope reveal">
+          <div class="envelope-inner">
+            <div class="envelope-face">
+              <p class="font-script text-2xl text-rose">Open when you need a promise 🕊️</p>
+            </div>
+            <div class="envelope-face envelope-back">
+              <p class="font-script text-lg leading-relaxed">
+                I've made a promise to myself that I'll keep standing by you whenever you're not okay, no matter what
+                happens. I won't go away — I'm with you, and I won't abandon you.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============== 5.5) INSIDE JOKES / OUR LITTLE THINGS ============== -->
+    <section id="jokes" class="px-5 py-16 max-w-4xl mx-auto">
+      <h2 class="font-script text-4xl text-center text-rose mb-2 reveal">Just Us 🤭</h2>
+      <p class="text-muted text-center text-sm mb-10 reveal">tap a card to open it</p>
+
+      <!-- REPLACE: edit the title on the front and the message on the back of each card -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+        <div class="envelope reveal">
+          <div class="envelope-inner">
+            <div class="envelope-face">
+              <p class="font-script text-2xl text-rose">Soulmates 💫</p>
+            </div>
+            <div class="envelope-face envelope-back">
+              <p class="font-script text-lg leading-relaxed" dir="auto">
+                حماده we are soulmates.. احنا بنحب بعض اوي.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="envelope reveal">
+          <div class="envelope-inner">
+            <div class="envelope-face">
+              <p class="font-script text-2xl text-rose">No Matter What You Choose 🤍</p>
+            </div>
+            <div class="envelope-face envelope-back">
+              <p class="font-script text-lg leading-relaxed" dir="auto">
+                طالما انت عاوز تعمل حاجة.. I'll support you habibi.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <a href="https://open.spotify.com/playlist/7hK2ijS0KUHTsJLl9KSSYj?si=71bc611ab43a4d41&pt=b08bab9c7ef50e150fcbcda17e14ea5d" target="_blank" rel="noopener" class="glass reveal sm:col-span-2 mx-auto w-full max-w-xs rounded-2xl px-6 py-5 flex items-center justify-center text-center">
+          <p class="font-script text-2xl text-rose">Our Playlist 🎧</p>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ============== 6) FINAL LOVE LETTER + SURPRISE BUTTON ============== -->
+    <section id="letter" class="px-6 py-20 max-w-2xl mx-auto text-center">
+      <h2 class="font-script text-4xl text-rose mb-8 reveal">One Last Thing</h2>
+
+      <!-- REPLACE: this is your long-form letter — write from the heart -->
+      <div class="glass rounded-2xl p-6 sm:p-8 text-left reveal">
+        <p class="font-script text-xl leading-relaxed mb-4">My sweet Hamada,</p>
+        <p class="text-muted leading-relaxed mb-4">
+          I built this whole little page just so I'd have somewhere to put everything I feel but don't always
+          say out loud. Every second on that counter up there is real — I've loved every single one of them
+          with you.
+        </p>
+        <p class="text-muted leading-relaxed mb-4">
+          Looking at you makes me realize how incredibly lucky I am to have you in my life. You are the absolute
+          best thing that has ever happened to me, and every single day I spend with you just proves that even
+          more. Being around you gives me a sense of peace and safety that I have never felt before. You are my
+          safe space and the only person I can completely be myself around without pretending or hiding anything.
+          I adore everything about you, from the way you think and handle things to the way you simply exist and
+          make everything better just by being there. You make me feel so loved and understood in ways I never
+          thought possible. I am so deeply grateful for your presence because you bring so much light and warmth
+          into my world even on my darkest days. You are the one I want to share all my moments with, the big
+          milestones and the quiet lazy days.
+        </p>
+        <p class="text-muted leading-relaxed mb-4">
+          Thank you for choosing me, again and again, on the easy days and the hard ones. Thank you for being
+          my favorite person to text, my favorite person to be quiet with, and my favorite person to fall
+          asleep talking to.
+        </p>
+        <p class="text-muted leading-relaxed mb-4">
+          You know, Hamada? What I feel for you is truly indescribable and so special. I truly, deeply love you
+          with a pure love free of anything else. You are the first person on my mind the moment I wake up and
+          the last thought in my head before I fall asleep. You completely occupy my mind, my heart, and my whole
+          world. For the first time, I genuinely ache when you're upset, and for the first time, I feel
+          overwhelmingly happy just seeing you happy. I feel the most beautiful feelings whenever I'm with you,
+          and everything feels empty when you're away. My love for you grows exponentially every single day;
+          whenever I look back, I realize I love you so much more today than yesterday, and I cherish and eagerly
+          anticipate every single second we share.
+        </p>
+        <p class="text-muted leading-relaxed mb-4">
+          Honestly, your smile and your laugh are the sweetest, most beautiful things to ever cross my life.
+          Sometimes my heart literally aches from how full of love it is, and I have never loved anyone like this
+          to the point where it feels like a dream. You are not just someone important to me; you are my entire
+          family and the most precious part of my life. Nothing in this entire world comforts me quite like
+          holding your hand, being in your arms, and hugging you tightly.
+        </p>
+        <p class="text-muted leading-relaxed mb-4">
+          Regardless of our fights, misunderstandings, or whatever struggles we go through, I need you to always
+          know that I love you, I want you, and I am in this with you all the way. I promise you that no matter
+          what life throws at us, I am never going to leave your side. I will be right here holding your hand
+          through all the beautiful, joyful times and standing strong right beside you through all the hard and
+          challenging ones. We are in this together, and I am choosing you today, tomorrow, and every single day
+          after that. You are my happy place and my soulmate.
+        </p>
+        <p class="text-muted leading-relaxed mb-4">
+          There's nowhere else I'd rather be than wherever you are. All I truly want from this life is to build
+          and spend my entire future with you and you alone. I can't wait for everything that's still ahead of
+          us. My love for you keeps growing unconditionally, forever and always.
+        </p>
+        <p class="font-script text-xl mt-6">forever yours,<br />Yehia 💗</p>
+      </div>
+
+      <!-- REPLACE: button label if you want -->
+      <button id="hug-btn" class="btn-primary rounded-full px-8 py-3.5 mt-10 text-base reveal">
+        Press for a virtual hug 🤗
+      </button>
+
+      <p class="text-muted text-xs mt-14 reveal">made with love, just for you 💕</p>
+    </section>
+
+  </main>
+
+  <!-- =========================================================
+       LIGHTBOX (gallery photo detail)
+       ========================================================= -->
+  <div id="lightbox">
+    <div class="glass rounded-2xl max-w-md w-full p-5 relative">
+      <button id="lightbox-close" class="absolute top-3 right-4 text-2xl text-muted" aria-label="Close">&times;</button>
+      <div id="lightbox-photo" class="polaroid-photo rounded-xl mb-4"><span class="placeholder-icon">📷</span></div>
+      <p id="lightbox-note" class="font-script text-xl leading-relaxed text-center"></p>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       HEART BURST LAYER (unlock success + final button)
+       ========================================================= -->
+  <div id="burst-layer"></div>
+
+  <!-- =========================================================
+       SURPRISE POPUP (after pressing the hug button)
+       ========================================================= -->
+  <div id="surprise-popup">
+    <div class="glass rounded-2xl max-w-sm w-full p-7 text-center relative">
+      <button id="surprise-close" class="absolute top-3 right-4 text-2xl text-muted" aria-label="Close">&times;</button>
+      <div class="text-5xl mb-3">🤗💗</div>
+      <!-- REPLACE: your surprise message -->
+      <p class="font-script text-2xl text-rose leading-relaxed">
+        Consider yourself hugged. Tightly. For a long time. I love you.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    /* ============================================================
+       CONFIG — the only section you should need to edit for the
+       core behaviour of the site. Everything else (text, photos,
+       envelope messages, the final letter) lives directly in the
+       HTML above, marked with REPLACE comments.
+       ============================================================ */
+    const CONFIG = {
+      // The secret code needed to unlock the site (digits only)
+      PASSCODE: "932026",
+
+      // Exact moment your story began — format: "YYYY-MM-DDTHH:MM:SS"
+      START_DATE: "2026-03-09T00:00:00",
+
+      // Lock screen song — YouTube video ID (the part after "v=" in the URL)
+      LOCK_SONG_YOUTUBE_ID: "4WTt69YO2VI",
+
+      // Where the lock-screen song should start, in seconds (0:17 = 17)
+      LOCK_SONG_START_SECONDS: 17,
+
+      // Main song (plays after the passcode is correct) — YouTube video ID
+      MAIN_SONG_YOUTUBE_ID: "PDJPpG8e4n4",
+
+      // Where the main song should start, in seconds (1:23 = 83)
+      MAIN_SONG_START_SECONDS: 83,
+    };
+
+    /* ============================================================
+       GLOBAL FLOATING HEARTS BACKGROUND
+       ============================================================ */
+    const heartField = document.getElementById("heart-field");
+    const HEART_EMOJIS = ["💗", "💕", "💖", "❤️", "💞"];
+
+    function spawnBackgroundHeart() {
+      const heart = document.createElement("span");
+      heart.className = "bg-heart";
+      heart.textContent = HEART_EMOJIS[Math.floor(Math.random() * HEART_EMOJIS.length)];
+      const size = 0.9 + Math.random() * 1.4;
+      const left = Math.random() * 100;
+      const duration = 8 + Math.random() * 8;
+      const drift = (Math.random() * 60 - 30) + "px";
+
+      heart.style.left = left + "vw";
+      heart.style.fontSize = size + "rem";
+      heart.style.setProperty("--drift", drift);
+      heart.style.animationDuration = duration + "s";
+
+      heartField.appendChild(heart);
+      heart.addEventListener("animationend", () => heart.remove());
+    }
+
+    setInterval(spawnBackgroundHeart, 750);
+    for (let i = 0; i < 6; i++) setTimeout(spawnBackgroundHeart, i * 300);
+
+    /* ============================================================
+       MUSIC MANAGER — two songs, both via the YouTube IFrame API
+       - Lock screen song: starts on the first numpad tap
+       - Main song: takes over (crossfade) once the passcode is right,
+         then keeps looping (chosen start → end) for the rest of the site
+       ============================================================ */
+    const musicBtn = document.getElementById("music-btn");
+
+    let audioStarted = false; // has the lock-screen song been started
+    let unlocked = false;     // has the passcode been solved
+
+    let lockPlayer = null, lockReady = false, lockPendingStart = false;
+    let mainPlayer = null, mainReady = false, mainPendingStart = false;
+
+    const musicToast = document.getElementById("music-toast");
+    function showToast(msg, duration = 5000) {
+      musicToast.textContent = msg;
+      musicToast.classList.add("show");
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => musicToast.classList.remove("show"), duration);
+    }
+
+    // If the YouTube API script itself never loads (blocked network,
+    // ad-blocker, offline test, etc.) this never fires — surfaced below.
+    setTimeout(() => {
+      if (typeof YT === "undefined") {
+        console.error("YouTube IFrame API failed to load (network/ad-blocker?).");
+      }
+    }, 4000);
+
+    function fadeYT(player, from, to, duration, onDone) {
+      const steps = 20;
+      const stepTime = duration / steps;
+      let step = 0;
+      const iv = setInterval(() => {
+        step++;
+        player.setVolume(Math.round(from + (to - from) * (step / steps)));
+        if (step >= steps) {
+          clearInterval(iv);
+          if (onDone) onDone();
+        }
+      }, stepTime);
+    }
+
+    // Loads the YouTube IFrame API as soon as the page opens so both
+    // songs are ready to go the instant they're needed.
+    window.onYouTubeIframeAPIReady = function () {
+      lockPlayer = new YT.Player("lock-yt-player", {
+        videoId: CONFIG.LOCK_SONG_YOUTUBE_ID,
+        playerVars: {
+          start: CONFIG.LOCK_SONG_START_SECONDS,
+          autoplay: 0, controls: 0, modestbranding: 1, rel: 0, playsinline: 1,
+        },
+        events: {
+          onReady: () => {
+            lockReady = true;
+            lockPlayer.setVolume(0);
+            if (lockPendingStart) { lockPendingStart = false; reallyPlayLock(); }
+          },
+          onStateChange: (e) => {
+            if (unlocked) return;
+            if (e.data === YT.PlayerState.PLAYING) musicBtn.classList.add("playing");
+            else if (e.data === YT.PlayerState.PAUSED) musicBtn.classList.remove("playing");
+            else if (e.data === YT.PlayerState.ENDED) {
+              lockPlayer.seekTo(CONFIG.LOCK_SONG_START_SECONDS, true);
+              lockPlayer.playVideo();
+            }
+          },
+          onError: (e) => {
+            console.error("Lock-screen YouTube player error code:", e.data);
+            showToast("Couldn't play the lock-screen song (error " + e.data + ") 💔", 7000);
+          },
+        },
+      });
+
+      mainPlayer = new YT.Player("main-yt-player", {
+        videoId: CONFIG.MAIN_SONG_YOUTUBE_ID,
+        playerVars: {
+          start: CONFIG.MAIN_SONG_START_SECONDS,
+          autoplay: 0, controls: 0, modestbranding: 1, rel: 0, playsinline: 1,
+        },
+        events: {
+          onReady: () => {
+            mainReady = true;
+            mainPlayer.setVolume(0);
+            if (mainPendingStart) { mainPendingStart = false; reallyPlayMain(); }
+          },
+          onStateChange: (e) => {
+            if (!unlocked) return;
+            if (e.data === YT.PlayerState.PLAYING) musicBtn.classList.add("playing");
+            else if (e.data === YT.PlayerState.PAUSED) musicBtn.classList.remove("playing");
+            else if (e.data === YT.PlayerState.ENDED) {
+              // loop the chosen range (start point → end of song) forever
+              mainPlayer.seekTo(CONFIG.MAIN_SONG_START_SECONDS, true);
+              mainPlayer.playVideo();
+            }
+          },
+          onError: (e) => {
+            console.error("Main YouTube player error code:", e.data);
+            showToast("Couldn't play that song here (error " + e.data + ") 💔", 7000);
+          },
+        },
+      });
+    };
+
+    function reallyPlayLock() {
+      lockPlayer.seekTo(CONFIG.LOCK_SONG_START_SECONDS, true);
+      lockPlayer.playVideo();
+      fadeYT(lockPlayer, 0, 70, 800);
+    }
+
+    function reallyPlayMain() {
+      mainPlayer.seekTo(CONFIG.MAIN_SONG_START_SECONDS, true);
+      mainPlayer.playVideo();
+      fadeYT(mainPlayer, 0, 70, 1400);
+    }
+
+    function startLockSong() {
+      if (audioStarted) return;
+      audioStarted = true;
+      if (!lockReady) { lockPendingStart = true; return; }
+      reallyPlayLock();
+    }
+
+    // Splash screen tap — this is the page's very first touch, so the
+    // browser reliably allows sound to start playing right after it.
+    document.getElementById("splash-btn").addEventListener("click", () => {
+      document.getElementById("splash-screen").classList.add("hidden");
+      startLockSong();
+      showLyricsPopup();
+    });
+
+    function startMainSong() {
+      if (!mainReady) { mainPendingStart = true; return; }
+      reallyPlayMain();
+    }
+
+    function crossfadeToMain() {
+      startMainSong();
+      if (lockReady) fadeYT(lockPlayer, lockPlayer.getVolume(), 0, 1400, () => lockPlayer.pauseVideo());
+      unlocked = true;
+
+      // Some mobile browsers block autoplay with sound even after a tap.
+      // If playback hasn't actually started shortly after, tell the user
+      // to use the floating music button — a direct tap always works.
+      setTimeout(() => {
+        if (!mainReady) {
+          showToast("Music didn't load — check your internet connection 💔");
+        } else if (mainPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+          showToast("Tap the music button to start the song 🎵");
+        }
+      }, 2500);
+    }
+
+    musicBtn.addEventListener("click", () => {
+      if (!unlocked) {
+        if (!audioStarted) { startLockSong(); return; }
+        if (!lockReady) return;
+        if (lockPlayer.getPlayerState() === YT.PlayerState.PLAYING) lockPlayer.pauseVideo();
+        else lockPlayer.playVideo();
+        return;
+      }
+      if (!mainReady) return;
+      if (mainPlayer.getPlayerState() === YT.PlayerState.PLAYING) mainPlayer.pauseVideo();
+      else mainPlayer.playVideo();
+    });
+
+    /* ============================================================
+       LYRICS POPUP — shown right after the splash tap, for 54s
+       (matches the lock song's 0:17 → 1:11 window), one line at a
+       time. Closing early (×) skips straight to the passcode.
+       ============================================================ */
+    // REPLACE: edit text or retime any line — each fires at its own
+    // "time" (seconds from popup open), independent of the others.
+    const LYRICS_DATA = [
+      { time: 0.0, text: "Oh, to see without my eyes" },
+      { time: 4.5, text: "The first time that you kissed me" },
+      { time: 9.0, text: "Boundless by the time I cried" },
+      { time: 13.5, text: "I built your walls around me" },
+      { time: 18.0, text: "White noise, what an awful sound" },
+      { time: 22.5, text: "Fumbling by Rogue River" },
+      { time: 27.0, text: "Feel my feet above the ground" },
+      { time: 31.5, text: "Hand of God, deliver me" },
+      { time: 36.0, text: "Oh, ooh, woe-woe is me" },
+      { time: 40.5, text: "The first time that you touched me" },
+      { time: 45.0, text: "Oh, will wonders ever cease?" },
+      { time: 49.5, text: "Blessed be the mystery of love" },
+    ];
+
+    const lyricsPopupEl = document.getElementById("lyrics-popup");
+    const lyricsLinesEl = document.getElementById("lyrics-lines");
+    const LYRICS_DURATION_MS = 55000;
+    let lyricsTimers = [];
+
+    const lyricsLineEls = LYRICS_DATA.map((line) => {
+      const p = document.createElement("p");
+      p.className = "lyrics-line";
+      p.textContent = line.text;
+      lyricsLinesEl.appendChild(p);
+      return p;
+    });
+
+    function showLyricsPopup() {
+      lyricsPopupEl.classList.add("open");
+      LYRICS_DATA.forEach((line, i) => {
+        lyricsTimers.push(setTimeout(() => {
+          lyricsLineEls.forEach((l) => l.classList.remove("show"));
+          lyricsLineEls[i].classList.add("show");
+        }, line.time * 1000));
+      });
+      lyricsTimers.push(setTimeout(closeLyricsPopup, LYRICS_DURATION_MS));
+    }
+
+    function closeLyricsPopup() {
+      lyricsTimers.forEach(clearTimeout);
+      lyricsTimers = [];
+      lyricsPopupEl.classList.remove("open");
+      lyricsLineEls.forEach((l) => l.classList.remove("show"));
+      lockScreenEl.classList.add("ready");
+    }
+
+    document.getElementById("lyrics-close").addEventListener("click", closeLyricsPopup);
+
+    /* ============================================================
+       LOCK SCREEN — PIN dots + numpad + shake/success feedback
+       ============================================================ */
+    const pinDotsEl = document.getElementById("pin-dots");
+    const numpadEl = document.getElementById("numpad");
+    const lockScreenEl = document.getElementById("lock-screen");
+    const lockCardEl = document.getElementById("lock-card");
+    const hintMsgEl = document.getElementById("hint-msg");
+    const appEl = document.getElementById("app");
+
+    let enteredCode = "";
+    const codeLength = CONFIG.PASSCODE.length;
+
+    // Build PIN dots
+    for (let i = 0; i < codeLength; i++) {
+      const dot = document.createElement("div");
+      dot.className = "pin-dot glass";
+      pinDotsEl.appendChild(dot);
+    }
+
+    function renderDots() {
+      const dots = pinDotsEl.children;
+      for (let i = 0; i < dots.length; i++) {
+        dots[i].classList.toggle("filled", i < enteredCode.length);
+      }
+    }
+
+    function checkCode() {
+      if (enteredCode === CONFIG.PASSCODE) {
+        unlockSite();
+      } else {
+        lockCardEl.classList.add("shake");
+        hintMsgEl.classList.add("show");
+        setTimeout(() => lockCardEl.classList.remove("shake"), 500);
+        setTimeout(() => {
+          enteredCode = "";
+          renderDots();
+          hintMsgEl.classList.remove("show");
+        }, 1100);
+      }
+    }
+
+    function handleDigit(digit) {
+      startLockSong();
+      if (enteredCode.length >= codeLength) return;
+      enteredCode += digit;
+      renderDots();
+      if (enteredCode.length === codeLength) {
+        setTimeout(checkCode, 200);
+      }
+    }
+
+    function handleBackspace() {
+      enteredCode = enteredCode.slice(0, -1);
+      renderDots();
+    }
+
+    // Build numpad: 1-9, backspace, 0, heart(confirm/decorative)
+    const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "back", "0", "heart"];
+    keys.forEach((key) => {
+      const btn = document.createElement("button");
+      btn.className = "num-btn glass";
+      if (key === "back") {
+        btn.innerHTML = "⌫";
+        btn.addEventListener("click", () => { pulseKey(btn); handleBackspace(); });
+      } else if (key === "heart") {
+        btn.innerHTML = "💗";
+        btn.addEventListener("click", () => { pulseKey(btn); startLockSong(); });
+      } else {
+        btn.textContent = key;
+        btn.addEventListener("click", () => { pulseKey(btn); handleDigit(key); });
+      }
+      numpadEl.appendChild(btn);
+    });
+
+    function pulseKey(btn) {
+      btn.classList.add("tapped");
+      setTimeout(() => btn.classList.remove("tapped"), 150);
+    }
+
+    function unlockSite() {
+      crossfadeToMain();
+      burstHearts(window.innerWidth / 2, window.innerHeight / 2, 36);
+      lockScreenEl.classList.add("unlocked");
+      appEl.style.transition = "opacity 1.2s ease";
+      appEl.style.opacity = "1";
+      startCounter();
+      initScrollReveal();
+    }
+
+    /* ============================================================
+       HEART BURST — used on unlock + final button
+       ============================================================ */
+    const burstLayer = document.getElementById("burst-layer");
+
+    function burstHearts(x, y, count) {
+      for (let i = 0; i < count; i++) {
+        const heart = document.createElement("span");
+        heart.className = "burst-heart";
+        heart.textContent = HEART_EMOJIS[Math.floor(Math.random() * HEART_EMOJIS.length)];
+        heart.style.left = x + "px";
+        heart.style.top = y + "px";
+        heart.style.fontSize = (1 + Math.random() * 1.6) + "rem";
+        burstLayer.appendChild(heart);
+
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 120 + Math.random() * 260;
+        const dx = Math.cos(angle) * distance;
+        const dy = Math.sin(angle) * distance - 80;
+
+        requestAnimationFrame(() => {
+          heart.style.transform = `translate(${dx}px, ${dy}px) rotate(${(Math.random() * 360) - 180}deg)`;
+          heart.style.opacity = "0";
+        });
+
+        setTimeout(() => heart.remove(), 1200);
+      }
+    }
+
+    /* ============================================================
+       LIVE "TIME TOGETHER" COUNTER
+       ============================================================ */
+    const startDate = new Date(CONFIG.START_DATE);
+    const counterEls = {
+      years: document.querySelector('[data-unit="years"]'),
+      months: document.querySelector('[data-unit="months"]'),
+      days: document.querySelector('[data-unit="days"]'),
+      hours: document.querySelector('[data-unit="hours"]'),
+      minutes: document.querySelector('[data-unit="minutes"]'),
+      seconds: document.querySelector('[data-unit="seconds"]'),
+    };
+
+    let counterInterval = null;
+
+    function computeDiff(from, to) {
+      let years = to.getFullYear() - from.getFullYear();
+      let months = to.getMonth() - from.getMonth();
+      let days = to.getDate() - from.getDate();
+      let hours = to.getHours() - from.getHours();
+      let minutes = to.getMinutes() - from.getMinutes();
+      let seconds = to.getSeconds() - from.getSeconds();
+
+      if (seconds < 0) { seconds += 60; minutes--; }
+      if (minutes < 0) { minutes += 60; hours--; }
+      if (hours < 0) { hours += 24; days--; }
+      if (days < 0) {
+        const prevMonth = new Date(to.getFullYear(), to.getMonth(), 0);
+        days += prevMonth.getDate();
+        months--;
+      }
+      if (months < 0) { months += 12; years--; }
+
+      return { years, months, days, hours, minutes, seconds };
+    }
+
+    function updateCounter() {
+      const diff = computeDiff(startDate, new Date());
+      Object.keys(counterEls).forEach((unit) => {
+        const el = counterEls[unit];
+        const val = String(Math.max(diff[unit], 0));
+        if (el.textContent !== val) {
+          el.textContent = val;
+          el.classList.remove("tick");
+          void el.offsetWidth; // restart animation
+          el.classList.add("tick");
+        }
+      });
+    }
+
+    function startCounter() {
+      updateCounter();
+      if (!counterInterval) counterInterval = setInterval(updateCounter, 1000);
+    }
+
+    /* ============================================================
+       SCROLL REVEAL
+       ============================================================ */
+    function initScrollReveal() {
+      const targets = document.querySelectorAll(".reveal");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in-view");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      targets.forEach((t) => observer.observe(t));
+    }
+
+    /* ============================================================
+       GALLERY LIGHTBOX
+       ============================================================ */
+    const lightbox = document.getElementById("lightbox");
+    const lightboxPhoto = document.getElementById("lightbox-photo");
+    const lightboxNote = document.getElementById("lightbox-note");
+
+    document.querySelectorAll(".polaroid").forEach((card) => {
+      card.addEventListener("click", () => {
+        card.classList.add("tapped");
+        setTimeout(() => card.classList.remove("tapped"), 300);
+
+        const photoDiv = card.querySelector(".polaroid-photo");
+        lightboxPhoto.style.backgroundImage = photoDiv.style.backgroundImage;
+        lightboxPhoto.innerHTML = photoDiv.style.backgroundImage
+          ? ""
+          : '<span class="placeholder-icon">📷</span>';
+        lightboxNote.textContent = card.dataset.note || "";
+        lightbox.classList.add("open");
+      });
+    });
+
+    document.getElementById("lightbox-close").addEventListener("click", () => {
+      lightbox.classList.remove("open");
+    });
+    lightbox.addEventListener("click", (e) => {
+      if (e.target === lightbox) lightbox.classList.remove("open");
+    });
+
+    /* ============================================================
+       ENVELOPE FLIP CARDS
+       ============================================================ */
+    document.querySelectorAll(".envelope").forEach((env) => {
+      env.addEventListener("click", () => env.classList.toggle("open"));
+    });
+
+    /* ============================================================
+       FINAL BUTTON — heart burst + surprise popup
+       ============================================================ */
+    const hugBtn = document.getElementById("hug-btn");
+    const surprisePopup = document.getElementById("surprise-popup");
+
+    hugBtn.addEventListener("click", () => {
+      const rect = hugBtn.getBoundingClientRect();
+      burstHearts(rect.left + rect.width / 2, rect.top + rect.height / 2, 50);
+      setTimeout(() => surprisePopup.classList.add("open"), 400);
+    });
+
+    document.getElementById("surprise-close").addEventListener("click", () => {
+      surprisePopup.classList.remove("open");
+    });
+    surprisePopup.addEventListener("click", (e) => {
+      if (e.target === surprisePopup) surprisePopup.classList.remove("open");
+    });
+  </script>
+</body>
+</html>
